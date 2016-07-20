@@ -3,8 +3,8 @@ STARLIGHT_WRAPPER
 
 An easy wrapper of STARLIGHT and related toolkit (Cid Fernandes et al. (2005)).
 
-- Github url: [https://github.com/hypergravity/bopy](https://github.com/hypergravity/starlight_wrapper)
-- PYPI url: [https://pypi.python.org/pypi/bopy](https://pypi.python.org/pypi/starlight_wrapper)
+- Github url: [https://github.com/hypergravity/starlight_wrapper](https://github.com/hypergravity/starlight_wrapper)
+- PYPI url: [https://pypi.python.org/pypi/starlight_wrapper](https://pypi.python.org/pypi/starlight_wrapper)
 
 AUTHOR
 ======
@@ -30,7 +30,7 @@ Will be featured in the near future.
 
 INSTALL
 =======
-`sudo pip install -U starlight_wrapper` or `pip install --user starlight_wrapper`
+`sudo pip install -U starlight_wrapper` or `pip install --user starlight_wrapper` to install **starlight_wrapper** from PYPI.
 
 
 PYTHON VERSIONS AND DEPENDENCIES
@@ -38,39 +38,25 @@ PYTHON VERSIONS AND DEPENDENCIES
 
 - python 2.7.6
 - ipython 4.0.0
-- APLpy==1.0
-- ATpy==0.9.7
-- Astropysics==1.0
 - Cython==0.22
 - PyAstronomy==0.9.0
 - PySTARLIGHT==0.3.6
-- TheCannon==0.5.2
-- astroML==0.3
 - astropy==1.1.post2
 - astropy-helpers==1.1.dev
-- emcee==2.1.0
 - ipykernel==4.2.2
 - ipyparallel==4.1.0
 - ipython==4.0.0
 - ipython-genutils==0.1.0
 - ipywidgets==4.1.1
-- joblib==0.8.4
 - jupyter==1.0.0
 - jupyter-client==4.1.1
 - jupyter-console==4.0.3
 - jupyter-core==4.0.6
 - jupyter-pip==0.3
-- line-profiler==1.0
-- lmfit==0.8.3
 - matplotlib==1.5.0
-- multiprocessing==2.6.2.1
-- numba==0.22.1
-- numexpr==2.4.6
 - numpy==1.8.2
 - pandas==0.17.1
-- scikit-learn==0.17
 - scipy==0.16.1
-- sklearn==0.0
 - spyder==2.3.9
 - virtualenv==1.11.4
 
