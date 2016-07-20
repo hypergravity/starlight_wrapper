@@ -13,4 +13,5 @@
 .ipynb_checkpoint
 *.ipynb
 build/*
+dist/*
 MANIFEST
