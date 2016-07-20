@@ -1,0 +1,15 @@
+*.iml
+*.xml
+*.fits
+*.aux
+*.dvi
+*.log
+*.blg
+*.pyc
+*.pdf
+*.eps
+*.png
+.idea
+.ipynb_checkpoint
+*.ipynb
+build/*
