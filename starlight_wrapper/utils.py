@@ -29,14 +29,11 @@ Aims
 from __future__ import print_function
 
 import os
+import copy
 import numpy as np
 from astropy.table import Table, Column
 from astropy.io import fits
-
-__extra_comments__ = '''
-# This grid file is written using bopy.starlight
-# BOPY, Bo Zhang's python package, https://github.com/hypergravity/bopy
-'''
+from .config import EXTRA_COMMENTS
 
 
 # ################
@@ -98,12 +95,16 @@ class StarlightGrid(object):
     vd_start = []
     arq_out = []
     # extra comments
-    extra = __extra_comments__
+    extra = EXTRA_COMMENTS
 
     def __init__(self, **kwargs):
         """ initialize instance using arq data """
         for key in kwargs.keys():
             self.__setattr__(key, kwargs[key])
+
+    def sync_nobs(self):
+        """ should sync the n_obs to meta """
+        self.meta['num_of_fits_to_run'] = len(self.arq_obs)
 
     def set_meta(self, **kwargs):
         """ set meta data """
@@ -170,8 +171,7 @@ class StarlightGrid(object):
         return [(fmt_str + "[%s]\n") % (self.meta[key], key)
                 for key in self.meta_order]
 
-    def _arq_to_string(self, sep='   '):
-        """ convert arq data to string list """
+    def _arq_scalar_to_list(self):
         #  1. arq data to list
         n_obs = len(self.arq_obs)
         for key in self.arq_order:
@@ -180,6 +180,12 @@ class StarlightGrid(object):
                 self.__setattr__(key, [val for _ in range(n_obs)])
             else:
                 assert len(val) == n_obs
+
+    def _arq_to_string(self, sep='   '):
+        """ convert arq data to string list """
+        #  1. arq data to list
+        n_obs = len(self.arq_obs)
+        self._arq_scalar_to_list()
 
         #  2. to string
         str_list = []
@@ -190,6 +196,8 @@ class StarlightGrid(object):
         return str_list
 
     def write(self, filepath, meta_val_width=50, sep='   '):
+        """ write to filepath in the form of STARLIGHT grid file """
+        self.sync_nobs()
         f = open(filepath, "w+")
         f.writelines(self._meta_to_string(meta_val_width))
         f.write('\n')
@@ -197,6 +205,55 @@ class StarlightGrid(object):
         f.write('\n')
         f.write(self.extra)
         f.close()
+
+    def write_split(self, n_split=24,
+                    fmt_str='StarlightGrid%03d.sw', **kwargs):
+        """ split self into *n_split* pieces and write to StarlightGrid files
+        """
+        self.sync_nobs()
+        n_obs = self.meta['num_of_fits_to_run']
+        # assert n_split > self.meta['num_of_fits_to_run']
+
+        # determine ind
+        n_splited = np.int(n_obs) / np.int(n_split) + 1
+        n_list = [n_splited for _ in range(n_split)]
+        n_list_cs = np.array(np.cumsum(n_list))
+        n_list_cs[n_list_cs > n_obs] = n_obs
+
+        # generate multi instance of StarlightGrid
+        self._arq_scalar_to_list()
+
+        filepaths = []
+        # split self
+        for i in range(n_split):
+            # filepath
+            filepath = fmt_str % (i+1)
+
+            # determine start & stop
+            if i == 0:
+                ind0 = 0
+            else:
+                ind0 = n_list_cs[i-1]
+            ind1 = n_list_cs[i]
+
+            # possible emtpy StarlightGrid
+            if ind0 == ind1:
+                print('@Cham: [empty!]: %s' % filepath)
+            else:
+                filepaths.append(filepath)
+
+            # deep copy
+            sg_ = copy.copy(self)
+
+            # set arq
+            for arq_key in self.arq_order:
+                sg_.__setattr__(arq_key,
+                                sg_.__getattribute__(arq_key)[ind0:ind1])
+
+            # write to file
+            sg_.write(filepath, **kwargs)
+
+        return filepaths
 
 
 def _test_starlight_grid():
@@ -251,7 +308,7 @@ class StarlightBase(object):
     yav = []
     afe = []
     # extra comments
-    extra = __extra_comments__
+    extra = EXTRA_COMMENTS
 
     def __init__(self, **kwargs):
         """ initialize instance using arq data """
@@ -289,7 +346,7 @@ class StarlightBase(object):
         f = open(filepath, "w+")
         f.writelines(self._meta_to_string(meta_val_width))
         # f.write('\n')
-        f.writelines(self._arq_to_string('   '))
+        f.writelines(self._arq_to_string(sep))
         f.write('\n')
         f.write(self.extra)
         f.close()
@@ -602,7 +659,7 @@ class StarlightConfig(object):
     # default values for StarlightConfig instance (StCv04.C99.config)
     meta = _config_StCv04C99_
     # extra comments
-    extra = __extra_comments__
+    extra = EXTRA_COMMENTS
     # necessary comments
     config_comments = _config_comments_
     config_comments_insert_index = _config_comments_insert_index_
@@ -614,6 +671,7 @@ class StarlightConfig(object):
     def set_meta(self, **kwargs):
         """ set meta data """
         for key in kwargs.keys():
+            assert key in self.meta.keys()
             self.meta[key] = kwargs[key]
 
     def set_quick(self, template='StCv04.C99.config'):
@@ -857,7 +915,7 @@ class StarlightMask(Table):
         f = open(filepath, 'w+')
         f.write('%d\n' % len(self))
         f.writelines(self._to_string(sep=sep, z=z))
-        f.write(__extra_comments__)
+        f.write(EXTRA_COMMENTS)
         f.close()
 
 

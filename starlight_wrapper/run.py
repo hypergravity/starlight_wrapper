@@ -30,5 +30,18 @@ import os
 import numpy as np
 from astropy.table import Table, Column
 from astropy.io import fits
+# from bopy.spec.read_spectrum import read_spectrum
 
+from .config import PACKAGE_PATH
+
+
+# TODO: implement some template scripts
+
+
+def ezrun():
+    pass
+
+
+def run():
+    pass
 

@@ -45,11 +45,11 @@ import astropy.io.ascii as ascii
 from astropy.table import Table, Column, vstack
 from astropy.io import fits
 
-from joblib import Parallel, delayed
+# from joblib import Parallel, delayed
 
 from .deredden import dered_ccm
-from ..spec.read_spectrum import read_spectrum
-from ..spec.lamost import sdss_filepath
+from bopy.spec.read_spectrum import read_spectrum
+from bopy.spec.lamost import sdss_filepath
 
 np.seterr(divide='ignore', invalid='ignore')
 # ####### the usage of np.seterr #######
@@ -126,19 +126,30 @@ def preprocess_ccm(wave, flux, flux_err, mask, Av, z,
     ###########################################################################
 
     # flux
-    P_flux = PchipInterpolator(wave_dez, flux_dez, extrapolate=False)
+    P_flux = PchipInterpolator(wave_dez, flux_dez.astype(np.float),
+                               extrapolate=False)
     flux_interp = P_flux(wave_interp)
-    flux_interp = np.where(np.isnan(flux_interp), 0., flux_interp)
 
     # flux_err
-    P_flux_err = PchipInterpolator(wave_dez, flux_err_dez, extrapolate=False)
+    P_flux_err = PchipInterpolator(wave_dez, flux_err_dez.astype(np.float),
+                                   extrapolate=False)
     flux_err_interp = P_flux_err(wave_interp)
-    flux_err_interp = np.where(np.isnan(flux_err_interp), 0., flux_err_interp)
 
     # mask
     mask_interper = interp1d(wave_dez, mask.astype(np.int64), kind='nearest',
                              fill_value=99, bounds_error=False)
     mask_interp = mask_interper(wave_interp)
+
+    # fix bad pixels
+    ind_bad = ~ (~ np.isnan(flux_interp)
+                 * ~ np.isinf(flux_interp)
+                 * ~ np.isnan(flux_err_interp)
+                 * ~ np.isinf(flux_err_interp)
+                 * ~ np.isnan(mask_interp)
+                 * ~ np.isinf(mask_interp)).astype(np.bool)
+    flux_interp[ind_bad] = 0.
+    flux_err_interp[ind_bad] = 0.
+    mask_interp[ind_bad] = 2.
 
     # strange mask spectra
     if np.sum(mask_interp == 0) == 0:

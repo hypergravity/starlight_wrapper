@@ -206,9 +206,8 @@ def dered_ccm(wave, flux, flux_err=None, Av=1.,
     We do this because the SED templates are defined in the observed frame.
     """
 
-
     if z is not None:
-        wave = wave * (1 + z)
+        wave *= (1 + z)
 
     # evaluate A_lambda from CCM extinction law
     Al = ccm(wave, Av=Av, Rv=Rv, strict_ccm=strict_ccm)
@@ -225,8 +224,9 @@ def dered_ccm(wave, flux, flux_err=None, Av=1.,
 
 
 # def R_z(wave, z, R_V=3.1, strict_ccm=0):
-#     '''Compute host reddening law for -effective observed wavelength wave, at redshift
-#    z, assuming R_V.'''
+#     '''Compute host reddening law for -effective observed wavelength wave,
+#     at redshift z, assuming R_V.
+#     '''
 #     wave = wave / (1 + z)
 #     a, b = ccm(wave, strict_ccm)
 #     R = R_V * a + b
