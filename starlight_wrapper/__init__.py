@@ -14,7 +14,7 @@ from .utils import (StarlightBase,
                     StarlightGrid,
                     StarlightOutput)
 from .run import run
-
+from .config import PACKAGE_PATH
 
 # #################### #
 # print welcome string #
@@ -30,8 +30,6 @@ print(str_welcome)
 # #################### #
 # print welcome string #
 # #################### #
-
-PACKAGE_PATH = os.path.dirname(__file__)
 
 print('@Cham: current package path: %s' % PACKAGE_PATH)
 
