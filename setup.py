@@ -4,7 +4,7 @@ from distutils.core import setup
 if __name__ == '__main__':
     setup(
         name='starlight_wrapper',
-        version='1.0.1',
+        version='1.0.2',
         author='Bo Zhang',
         author_email='bozhang@nao.cas.cn',
         description='An easy wrapper of STARLIGHT.',  # short description
@@ -21,9 +21,10 @@ if __name__ == '__main__':
             "Topic :: Scientific/Engineering :: Physics"],
         package_dir={'starlight_wrapper': 'starlight_wrapper'},
         packages=['starlight_wrapper'],
-        package_data={'starlight_wrapper': ['data/0603/*',
+        package_data={'starlight_wrapper': ['data/SDSS_DR10/*',
+                                            'data/SDSS_DR10/0603/*',
                                             'data/STARLIGHTv04/*',
                                             'data/STARLIGHTv04/BasesDir/*']},
-        include_package_data=True,
+        # include_package_data=True,
         requires=['numpy', 'scipy', 'matplotlib', 'astropy', 'bopy']
     )

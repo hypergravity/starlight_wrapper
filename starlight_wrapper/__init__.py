@@ -14,17 +14,14 @@ from .utils import (StarlightBase,
                     StarlightGrid,
                     StarlightOutput)
 from .run import run
-from .config import PACKAGE_PATH
+from .config import PACKAGE_PATH, WELCOME
+
 
 # #################### #
 # print welcome string #
 # #################### #
 
-str_welcome = """
-Welcome to use **STARLIGHT_WRAPPER** written by Bo Zhang (bozhang@nao.cas.cn).
-Have fun with it!
-"""
-print(str_welcome)
+print(WELCOME)
 
 
 # #################### #
