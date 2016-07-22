@@ -4,7 +4,7 @@ from distutils.core import setup
 if __name__ == '__main__':
     setup(
         name='starlight_wrapper',
-        version='1.1.0',
+        version='1.2.0',
         author='Bo Zhang',
         author_email='bozhang@nao.cas.cn',
         description='An easy wrapper of STARLIGHT.',  # short description
