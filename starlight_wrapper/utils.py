@@ -318,6 +318,10 @@ class StarlightBase(object):
         # count spec_file
         self.meta['n_base'] = len(self.spec_file)
 
+    def _sync_nbase(self):
+        """ synchronize nbase """
+        self.meta['n_base'] = len(self.spec_file)
+
     def _meta_to_string(self, val_width=50):
         """ convert meta data to string list """
         fmt_str = "%%%ds" % (-val_width)
@@ -344,6 +348,7 @@ class StarlightBase(object):
         return str_list
 
     def write(self, filepath, meta_val_width=50, sep='   '):
+        self._sync_nbase()
         f = open(filepath, "w+")
         f.writelines(self._meta_to_string(meta_val_width))
         # f.write('\n')
@@ -351,6 +356,55 @@ class StarlightBase(object):
         f.write('\n')
         f.write(self.extra)
         f.close()
+
+    def quick_set(self,
+                  template='Base.BC03.N.dat',
+                  template_dir='Base.BC03',
+                  copy_base_to=None,
+                  **kwargs):
+        """ a quick set of StarlightBase """
+        # integrated templates
+        integrated_templates = ['Base.BC03.N.dat',
+                                'Base.BC03.S.dat']
+
+        # assert template existence
+        template_path = os.path.join(PACKAGE_PATH,
+                                     'data',
+                                     'template_base',
+                                     template)
+
+        # try to read base catalog
+        try:
+            assert os.path.exists(template_path)
+            template_data = Table.read(template_path, **kwargs)
+        except AssertionError:
+            if template in integrated_templates:
+                raise AssertionError(
+                    '@Cham: integrated StarlightMask template error!')
+            else:
+                raise AssertionError(
+                    '@Cham: user-defined StarlightMask template error!')
+
+        # assign value
+        self.spec_file = template_data['specfile']
+        self.age = template_data['age']
+        self.z = template_data['Z']
+        self.code = template_data['code']
+        self.mstar = template_data['Mstar']
+        self.yav = template_data['YAV']
+        self.afe = template_data['aFe']
+        self._sync_nbase()
+
+        # copy base to starlight_dir
+        if copy_base_to is not None:
+            template_dir = os.path.join(PACKAGE_PATH,
+                                        'data',
+                                        'template_base',
+                                        template_dir)
+            os.system('cp -r %s %s' % (template_dir, copy_base_to))
+            print('@Cham: copy template dirctory:\n'
+                  'FROM: %s\n'
+                  'TO:   %s\n' % (template_dir, copy_base_to))
 
 
 def _test_starlight_base():
