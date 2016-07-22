@@ -10,8 +10,9 @@
 *.eps
 *.png
 .idea
-.ipynb_checkpoint
+.ipynb_checkpoint/*
 *.ipynb
+*.html
 build/*
 dist/*
 MANIFEST

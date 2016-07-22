@@ -24,7 +24,8 @@ if __name__ == '__main__':
         package_data={'starlight_wrapper': ['data/SDSS_DR10/*',
                                             'data/SDSS_DR10/0603/*',
                                             'data/STARLIGHTv04/*',
-                                            'data/STARLIGHTv04/BasesDir/*']},
+                                            'data/STARLIGHTv04/BasesDir/*',
+                                            'data/template_mask/*']},
         # include_package_data=True,
         requires=['numpy', 'scipy', 'matplotlib', 'astropy', 'bopy']
     )
