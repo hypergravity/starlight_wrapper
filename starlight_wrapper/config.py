@@ -3,8 +3,7 @@ import os
 PACKAGE_PATH = os.path.dirname(__file__)
 
 WELCOME = """
-Welcome to use **STARLIGHT_WRAPPER**.
-Have fun with it!
+Welcome to use **STARLIGHT_WRAPPER**. Have fun with it!
 Author: Bo Zhang (bozhang@nao.cas.cn).
 """
 
