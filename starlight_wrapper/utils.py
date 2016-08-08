@@ -365,7 +365,10 @@ class StarlightBase(object):
         """ a quick set of StarlightBase """
         # integrated templates
         integrated_templates = ['Base.BC03.N.dat',
-                                'Base.BC03.S.dat']
+                                'Base.BC03.S.dat',
+                                'Base.SED.39.dat',
+                                'Base.SED.Geneva.sw',
+                                'Base.SED.Padova.sw']
 
         # assert template existence
         template_path = os.path.join(PACKAGE_PATH,
@@ -380,10 +383,10 @@ class StarlightBase(object):
         except AssertionError:
             if template in integrated_templates:
                 raise AssertionError(
-                    '@Cham: integrated StarlightMask template error!')
+                    '@Cham: integrated StarlightBase template error!')
             else:
                 raise AssertionError(
-                    '@Cham: user-defined StarlightMask template error!')
+                    '@Cham: user-defined StarlightBase template error!')
 
         # assign value
         self.spec_file = template_data['specfile']
@@ -395,16 +398,20 @@ class StarlightBase(object):
         self.afe = template_data['aFe']
         self._sync_nbase()
 
+        # copy base
+        self.copy_base_to(src_dir=template_dir, dst_dir=copy_base_to)
+
+    def copy_base_to(self, src_dir='Base.BC03', dst_dir=None):
         # copy base to starlight_dir
-        if copy_base_to is not None:
+        if dst_dir is not None:
             template_dir = os.path.join(PACKAGE_PATH,
                                         'data',
                                         'template_base',
-                                        template_dir)
-            os.system('cp -r %s %s' % (template_dir, copy_base_to))
+                                        src_dir)
+            os.system('cp -r %s %s' % (template_dir, dst_dir))
             print('@Cham: copy template dirctory:\n'
                   'FROM: %s\n'
-                  'TO:   %s\n' % (template_dir, copy_base_to))
+                  'TO:   %s\n' % (template_dir, dst_dir))
 
 
 def _test_starlight_base():
