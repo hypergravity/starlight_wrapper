@@ -16,4 +16,5 @@
 doc/*
 build/*
 dist/*
+test/*
 MANIFEST
