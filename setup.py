@@ -4,7 +4,7 @@ from distutils.core import setup
 if __name__ == '__main__':
     setup(
         name='starlight_wrapper',
-        version='1.2.0',
+        version='1.3.0',
         author='Bo Zhang',
         author_email='bozhang@nao.cas.cn',
         description='An easy wrapper of STARLIGHT.',  # short description
@@ -26,7 +26,9 @@ if __name__ == '__main__':
                                             'data/executable/*',
                                             'data/template_mask/*',
                                             'data/template_base/*',
-                                            'data/template_base/Base.BC03/*']},
+                                            'data/template_base/Base.BC03/*',
+                                            'data/template_base/Base.SED.FWHM2.5/*',
+                                            'data/template_base/Base.SED.FWHM0.3/*']},
         # include_package_data=True,
         requires=['numpy', 'scipy', 'matplotlib', 'astropy', 'bopy']
     )
