@@ -26,7 +26,7 @@ Aims
 
 """
 
-from __future__ import print_function
+from __future__ import print_function, division
 
 import os
 import copy
@@ -181,6 +181,8 @@ class StarlightGrid(object):
                 self.__setattr__(key, [val for _ in range(n_obs)])
             else:
                 assert len(val) == n_obs
+        # convert to np.array
+        self.__setattr__(key, np.array(self.__getattribute__(key)))
 
     def _arq_to_string(self, sep='   '):
         """ convert arq data to string list """
@@ -255,6 +257,133 @@ class StarlightGrid(object):
             sg_.write(filepath, **kwargs)
 
         return filepaths
+
+    def write_split_advanced(self,
+                             n_max=None,
+                             fmt_str='StarlightGrid_RUN%03d_SUBSET%03d.sw',
+                             check_result_existence=False,
+                             create_outdir=False,
+                             **kwargs):
+        """ Split StarlightGrid file to several pieces
+
+        Parameters
+        ----------
+        n_max: int
+            the maximum files will be run
+        fmt_str: string
+            the format string of the splited StarlightGrid file
+        kwargs:
+
+        Returns
+        -------
+        filepaths: list
+            list of splited StarlightGrid files
+
+        """
+        # 0. preparation
+        self.sync_nobs()
+        self._arq_scalar_to_list()
+
+        if check_result_existence:
+            ind_exist = [
+                os.path.exists(''.join([self.meta['out_dir'], arq_out_]))
+                for arq_out_ in self.arq_out]
+            ind_use = np.logical_not(np.array(ind_exist))
+            print('@Cham: [%s/%s] files will be used ...'
+                  % (np.sum(ind_use), len(ind_use)))
+            print('@Cham: setting arqs (used only) ...')
+            for arq_key in self.arq_order:
+                self.__setattr__(
+                    arq_key, np.array(self.__getattribute__(arq_key))[ind_use])
+
+        # 1. check dir_obs and dir_out
+        file_obs = np.array(
+            [self.meta['obs_dir'] + arq_obs_ for arq_obs_ in self.arq_obs])
+        file_out = np.array(
+            [self.meta['out_dir'] + arq_out_ for arq_out_ in self.arq_out])
+        dirname_obs = np.array(
+            [os.path.dirname(file_obs_) for file_obs_ in file_obs])
+        basename_obs = np.array(
+            [os.path.basename(file_obs_) for file_obs_ in file_obs])
+        dirname_out = np.array(
+            [os.path.dirname(file_out_) for file_out_ in file_out])
+        basename_out = np.array(
+            [os.path.basename(file_out_) for file_out_ in file_out])
+        dirname_obs_out = np.array(
+            [dirname_obs_ + dirname_out_
+            for dirname_obs_, dirname_out_ in zip(dirname_obs, dirname_out)])
+        dirname_obs_out_u, dirname_obs_out_u_id, dirname_obs_out_u_counts \
+            = np.unique(dirname_obs_out, return_index=True, return_counts=True)
+        # n_dirname_obs_out_u = len(dirname_obs_out_u)
+        n_obs = len(file_obs)
+
+        # 2. determine run_id
+        run_id = np.zeros(n_obs)
+        run_dict = {}
+        for i, dirname_obs_out_u_ in enumerate(dirname_obs_out_u):
+            run_dict[dirname_obs_out_u_] = i
+        for i in range(len(file_obs)):
+            run_id[i] = run_dict[dirname_obs_out[i]]
+
+        # 3. write SGs
+        filepaths = []
+        for i_run, dirname_obs_out_u_ in enumerate(dirname_obs_out_u):
+            this_run_ind = np.where(dirname_obs_out==dirname_obs_out_u_)
+            # print('this_run_ind')
+            # print(this_run_ind)
+            # this_run_file_obs = file_obs[this_run_ind]
+            # this_run_file_out = file_out[this_run_ind]
+            this_run_subs = splitdata_n_max(this_run_ind, n_max)
+            # print('this_run_subs')
+            # print(this_run_subs)
+            this_obs_dir = dirname_obs[this_run_ind[0][0]]
+            this_out_dir = dirname_out[this_run_ind[0][0]]
+
+            # mkdir for plate
+            if create_outdir:
+                if not os.path.exists(this_out_dir):
+                    os.mkdir(this_out_dir)
+                    print('@Cham: mkdir [%s]' % this_out_dir)
+
+            # write SG for each sub
+            print(len(this_run_subs))
+            for i_sub in range(len(this_run_subs)):
+                this_sub_ind = this_run_subs[i_sub]
+
+                filepath = fmt_str % (i_run, i_sub)
+                filepaths.append(filepath)
+
+                # deep copy
+                sg_ = copy.copy(self)
+                # set meta
+                sg_.set_meta(obs_dir=this_obs_dir,
+                             out_dir=this_out_dir)
+                # set arq
+                for arq_key in self.arq_order:
+                    sg_.__setattr__(
+                        arq_key, np.array(sg_.__getattribute__(arq_key))[this_sub_ind])
+                sg_.arq_obs = basename_obs[this_sub_ind]
+                sg_.arq_out = basename_out[this_sub_ind]
+                # write to file
+                sg_.write(filepath, **kwargs)
+
+                # verbose
+                print('@Cham: writing StarlightGrid [%s] (dir=%s, nobs=%d) ...'
+                      % (filepath, dirname_obs_out_u_, len(this_sub_ind)))
+
+        return filepaths
+
+
+def splitdata_n_max(data, n_max):
+    """ split N into n_max - sized bins """
+    data = np.array(data).flatten()
+    N = len(data)
+    data_splited = []
+    for i in range(np.int64(np.ceil(N/n_max))):
+        start = i*n_max
+        stop  = np.min([(i+1)*n_max, N])
+        data_splited.append(data[start:stop])
+    return data_splited
 
 
 def _test_starlight_grid():
@@ -532,7 +661,7 @@ _config_StCv04C11_ = dict(
     vd_low=0.0,
     vd_upp=500.0,
     # Clipping options & Weight-Control-Filter
-    clip_method_option='NSIGMA', # NOCLIP/NSIGMA/RELRES/ABSRES
+    clip_method_option='NSIGMA',  # NOCLIP/NSIGMA/RELRES/ABSRES
     sig_clip_threshold=3.0,
     wei_nsig_threshold=2.0,
     # Miscellaneous
