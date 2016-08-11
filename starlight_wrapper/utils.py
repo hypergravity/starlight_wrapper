@@ -1123,11 +1123,19 @@ class StarlightOutput(object):
         print(self.syn_spec)
 
     def write_fits(self, filepath, **kwargs):
+        # replace nan/inf values in meta dict with -999.
+        for k, v in self.meta.items():
+            if np.isnan(v) or np.isinf(v):
+                self.meta[k] = -999.
+
+        # construct fits Primary HDU
         prihdr = fits.Header()
         prihdr['AUTHOR'] = 'Bo Zhang'
         for k, v in self.meta.items():
             prihdr[k] = v
         prihdu = fits.PrimaryHDU(header=prihdr)
+
+        # construct fits HDU list
         hdulist = fits.HDUList([prihdu,
                                 fits.table_to_hdu(self.syn_model),
                                 fits.table_to_hdu(self.syn_spec)])
