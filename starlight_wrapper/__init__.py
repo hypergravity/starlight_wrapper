@@ -30,3 +30,5 @@ print(WELCOME)
 
 print('@Cham: current package path: %s' % PACKAGE_PATH)
 
+
+from helpers import pre_create_dir
