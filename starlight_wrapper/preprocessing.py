@@ -294,12 +294,12 @@ def preprocess_sdss_dr10_script(n_test, parallel=False):
 
     Example
     -------
-    >>> from bopy.starlight.preprocessing import preprocess_sdss_dr10_script
+    >>> from starlight_wrapper.preprocessing import preprocess_sdss_dr10_script
     >>> ??preprocess_sdss_dr10_script()
     >>> # then copy them to a script & change parameters/settings
 
     """
-    from bopy.starlight.preprocessing import preprocess_sdss_dr10
+    from starlight_wrapper.preprocessing import preprocess_sdss_dr10
     from joblib import Parallel, delayed
 
     # settings

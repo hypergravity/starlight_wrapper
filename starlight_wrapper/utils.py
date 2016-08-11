@@ -346,7 +346,6 @@ class StarlightGrid(object):
                     print('@Cham: mkdir [%s]' % this_out_dir)
 
             # write SG for each sub
-            print(len(this_run_subs))
             for i_sub in range(len(this_run_subs)):
                 this_sub_ind = this_run_subs[i_sub]
 
@@ -356,8 +355,8 @@ class StarlightGrid(object):
                 # deep copy
                 sg_ = copy.copy(self)
                 # set meta
-                sg_.set_meta(obs_dir=this_obs_dir,
-                             out_dir=this_out_dir)
+                sg_.set_meta(obs_dir=this_obs_dir+os.path.sep,
+                             out_dir=this_out_dir+os.path.sep)
                 # set arq
                 for arq_key in self.arq_order:
                     sg_.__setattr__(
@@ -371,6 +370,7 @@ class StarlightGrid(object):
                 print('@Cham: writing StarlightGrid [%s] (dir=%s, nobs=%d) ...'
                       % (filepath, dirname_obs_out_u_, len(this_sub_ind)))
 
+        print('@Cham: len(self.arq_out) = %s' % len(self.arq_out))
         return filepaths
 
 

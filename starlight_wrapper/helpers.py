@@ -27,6 +27,7 @@ Aims
 import os
 import numpy as np
 
+
 def pre_create_dir(filelist, iter=False):
     """ create directories for a list of files
 
